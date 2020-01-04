@@ -1,0 +1,212 @@
+@name Calculator
+@inputs One Two Three Four Five Six Seven Eight Nine Zero Decimal
+@inputs Plus Minus Divide Multiply Equals Clear FuckGoBack
+@persist Point Finished Result D1 D2 D3 D4 D5 P1 [Digit1 Digit2 Digit3 Digit4 Digit5]:string
+@outputs P1 Result1 Result2 [Screen Phase1 Phase2]:string Addition Subtraction Multiplication Division
+
+#[
+    1. Enter Phase1's Number
+    2. Press Plus to save the number and go into phase2
+    3. Enter Phase2's Number
+    4. Press Equals to take Phase1 and Phase2 and add them together
+]#
+if(first() | (~Clear & !Clear)){
+    P1 = 1
+    D1=D2=D3=D4=0
+    Digit1=Digit2=Digit3=Digit4=Digit5= ""
+    Phase1 = "0"
+    Phase2 = "0"
+    Addition = Subtraction = Multiplication = Division = 0
+    Result1 = 0
+    Result2 = 0
+    Finished = 0
+    Point = 0
+}
+
+ButtonPressed = One|Two|Three|Four|Five|Six|Seven|Eight|Nine|Zero|Decimal
+MiscPressed = Multiply|Divide|Plus|Minus|Equals|Clear
+
+E = entity()
+
+if(ButtonPressed|MiscPressed){
+    E:soundPlay(1,0,"buttons/button16.wav")   
+}
+   
+if(!Finished){ #If I haven't pressed equals (aka finished) yet, let me run all of this
+    if(One){
+          N = 1 
+    }
+    elseif(Two){
+          N = 2 
+    }
+    elseif(Three){
+          N = 3
+    }
+    elseif(Four){
+          N = 4 
+    }
+    elseif(Five){
+          N = 5 
+    }
+    elseif(Six){
+          N = 6 
+    }
+    elseif(Seven){
+          N = 7 
+    }
+    elseif(Eight){
+          N = 8
+    }
+    elseif(Nine){
+          N = 9
+    }
+    elseif(Zero){
+        if(D1>=1){
+          N = 0.1 
+        }
+    }
+    elseif(Decimal & !Point & D1){
+        Point = 1
+        N = 10 
+    }
+    
+    #CAN USE AN ARRAY HERE TO HAVE MORE DIGITS
+    
+    for(D=1,54){   
+          
+    }
+
+    
+    if(!D1){ #If Digit 1 isn't taken, set it to the desired number
+        D1 = N
+    }
+    elseif(!D2){ #If Digit 2 isn't taken, set it to the desired number
+        D2 = N
+    }
+    elseif(!D3){ #and so on
+        D3 = N
+    }
+    elseif(!D4){
+        D4 = N
+    }
+    elseif(!D5){ 
+        D5 = N
+    }
+    
+    if(~Plus & !Plus){ #If I press plus, add a plus sign to the end of the equation
+            Digit5 = "+"
+    }
+    elseif(~Minus & !Minus){
+            Digit5 = "-"
+    }
+    elseif(~Divide & !Divide){
+            Digit5 = "/"
+    }
+    elseif(~Multiply & !Multiply){
+            Digit5 = "x"
+    }
+    #D1-D5 are the button inputs
+    #Digit1 - Digit5 is what gets put on the screen
+    Digit1 = D1:toString()
+    Digit2 = D2:toString()
+    Digit3 = D3:toString()
+    Digit4 = D4:toString()
+    
+    if(!D1){
+        Digit1 = ""   
+    }
+    if(!D2){
+        Digit2 = ""   
+    }
+    if(!D3){
+        Digit3 = ""   
+    }
+    if(!D4){
+        Digit4 = ""   
+    }
+    
+    if(D2==0.1){
+        Digit2 = "0"   
+    }
+    
+    if(D3==0.1){
+        Digit3 = "0"   
+    }
+    
+    if(D4==0.1){
+        Digit4 = "0"   
+    }
+    
+    if(D2==10){
+        Digit2 = "."   
+    }
+    
+    if(D3==10){
+        Digit3 = "."   
+    }
+    
+    if(D4==10){
+        Digit4 = "."   
+    }
+    #Phase1 and Phase2 are the strings for the side screens
+    
+    #P1 is saying that it's in the first phase of the calculation
+    
+    #Screen is the main screen
+    
+    #Result1 is the number stored for Phase1, Result 2 is the number stored for Phase2
+    
+    Screen = Digit1 + Digit2 + Digit3 + Digit4 + Digit5
+    
+    
+    if(P1){ #If In phase 1, do any one of these:
+        if(~Plus & !Plus){      
+            Phase1 = Digit1+Digit2+Digit3+Digit4   
+            Result1 = Phase1:toNumber()
+            Addition=1
+        }
+        elseif(~Minus & !Minus){ 
+            Phase1 = Digit1+Digit2+Digit3+Digit4   
+            Result1 = Phase1:toNumber()
+            Subtraction=1
+        }
+        elseif(~Multiply & !Multiply){ 
+            Phase1 = Digit1+Digit2+Digit3+Digit4   
+            Result1 = Phase1:toNumber()
+            Multiplication=1
+        }
+        elseif(~Divide & !Divide){ 
+            Phase1 = Digit1+Digit2+Digit3+Digit4   
+            Result1 = Phase1:toNumber() #Convert Phase1 to a number and store it as Result1
+            Division=1
+        }
+        if((Addition|Subtraction|Multiplication|Division) & ButtonPressed){
+            Screen = Phase2
+            D1=N
+            D2=D3=D4=0
+            Digit1=Digit2=Digit3=Digit4=Digit5= ""
+            P1 = 0
+        }
+    }
+    if(changed(MiscPressed) & !MiscPressed){
+        Point = 0   
+    }
+    if(~Equals & !Equals){ #If I press equals
+        Finished = 1 #Now don't let me change anything else
+        Phase2 = Digit1+Digit2+Digit3+Digit4 #Define what Phase2 means
+        Result2 = Phase2:toNumber() #Convert Phase2 to a number and store it as Result2
+        if(Addition){ #If adding do this
+            Result = Result1 + Result2
+        }
+        if(Subtraction){ #If subtracting do this
+            Result = Result1 - Result2
+        }
+        if(Multiplication){ #If multiplying do this
+            Result = Result1 * Result2
+        }
+        if(Division){ #If dividing do this
+            Result = Result1 / Result2
+        }
+        Screen = Result:toString() #And then put the result on the main screen
+    }
+}
